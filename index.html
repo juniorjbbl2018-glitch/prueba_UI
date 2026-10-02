@@ -187,7 +187,7 @@
     <!-- FASE 4: Gato -->
     <div id="fase4" class="glass-card p-6 rounded-2xl text-center max-w-sm w-full hidden-phase">
         <h2 class="text-3xl mb-2">GATO VS IA</h2>
-        <p id="gato-status" class="text-lg mb-4 h-6">Tu turno. Juegas con: X</p>
+        <p id="gato-status" class="text-lg mb-4 min-h-[1.75rem]">Tu turno. Juegas con: X</p>
         <div id="tic-tac-toe-board">
             <div class="tic-cell" onclick="makeMove(0)"></div>
             <div class="tic-cell" onclick="makeMove(1)"></div>
@@ -220,7 +220,6 @@
         }
 
         // --- FASE 2: LABERINTO ---
-        // 0: libre, 1: pared, 2: meta
         const mazeLayout = [
             [0, 1, 0, 0, 0],
             [0, 1, 0, 1, 0],
@@ -272,7 +271,8 @@
         btnNo.addEventListener('mouseover', evadeClick);
         btnNo.addEventListener('touchstart', evadeClick);
 
-        function evadeClick() {
+        function evadeClick(e) {
+            e.preventDefault();
             const container = btnNo.parentElement;
             const maxX = container.offsetWidth - btnNo.offsetWidth;
             const randomX = Math.floor(Math.random() * maxX);
@@ -289,40 +289,31 @@
         let playerPiece = 'X';
         let aiPiece = 'O';
         let gameActive = true;
+        const statusEl = document.getElementById('gato-status');
+        
         const winConditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Filas
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columnas
-            [0, 4, 8], [2, 4, 6]             // Diagonales
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
         ];
 
         function makeMove(index) {
             if (board[index] === '' && gameActive) {
                 board[index] = playerPiece;
                 updateBoard();
-                if (checkWin(playerPiece)) {
-                    endGame('ganado');
-                } else if (!board.includes('')) {
-                    endGame('empate');
-                } else {
-                    gameActive = false;
-                    document.getElementById('gato-status').innerHTML = 'IA pensando...';
-                    setTimeout(aiMove, 600);
-                }
+                checkGameState(playerPiece, true);
             }
         }
 
         function aiMove() {
-            let bestMove = -1;
-
-            // 1. Intentar ganar
-            bestMove = findWinningMove(aiPiece);
+            if (!gameActive) return;
             
-            // 2. Si no puede ganar, bloquear
+            let bestMove = findWinningMove(aiPiece); // Intentar ganar
+            
             if (bestMove === -1) {
-                bestMove = findWinningMove(playerPiece);
+                bestMove = findWinningMove(playerPiece); // Intentar bloquear
             }
 
-            // 3. Movimiento aleatorio
             if (bestMove === -1) {
                 let available = board.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
                 bestMove = available[Math.floor(Math.random() * available.length)];
@@ -331,14 +322,7 @@
             if (bestMove !== -1) {
                 board[bestMove] = aiPiece;
                 updateBoard();
-                if (checkWin(aiPiece)) {
-                    endGame('perdido');
-                } else if (!board.includes('')) {
-                    endGame('empate');
-                } else {
-                    document.getElementById('gato-status').innerHTML = 'Tu turno. Juegas con: ' + playerPiece;
-                    gameActive = true;
-                }
+                checkGameState(aiPiece, false);
             }
         }
 
@@ -352,12 +336,6 @@
             return -1;
         }
 
-        function checkWin(piece) {
-            return winConditions.some(condition => {
-                return condition.every(index => board[index] === piece);
-            });
-        }
-
         function updateBoard() {
             const cells = document.querySelectorAll('.tic-cell');
             cells.forEach((cell, i) => {
@@ -366,31 +344,61 @@
             });
         }
 
-        function endGame(result) {
-            gameActive = false;
-            const status = document.getElementById('gato-status');
+        // NUEVA LÓGICA DE CONTROL DE ESTADO
+        function checkGameState(lastPiecePlayed, isPlayerTurn) {
+            const won = winConditions.some(cond => cond.every(idx => board[idx] === lastPiecePlayed));
+            const isDraw = !board.includes('');
 
-            if (result === 'ganado') {
-                status.innerHTML = "¡Ganaste! no cabe duda que siempre seras la mejor en todo ❤️";
+            if (won) {
+                gameActive = false;
+                if (isPlayerTurn) {
+                    statusEl.innerHTML = "¡Ganaste! no cabe duda que siempre seras la mejor en todo ❤️";
+                } else {
+                    iniciarSecuenciaPerdida();
+                }
+            } else if (isDraw) {
+                gameActive = false;
+                iniciarSecuenciaPerdida(true); // Empate también cuenta como "pérdida" en este contexto
             } else {
-                status.innerHTML = result === 'empate' ? "¡Empate!" : "¡Oh no! Perdiste...";
-                
-                setTimeout(() => {
-                    status.innerHTML = "te dejare ganar <div class='spinner'></div>";
-                    
-                    // Aquí estaba el error. Limpiamos y reactivamos correctamente.
-                    setTimeout(() => {
-                        board = ['', '', '', '', '', '', '', '', ''];
-                        updateBoard();
-                        playerPiece = 'O'; // Cambia las piezas permanentemente
-                        aiPiece = 'X';
-                        
-                        status.innerHTML = "Tu turno. Juegas con: " + playerPiece;
-                        gameActive = true; // Volvemos a activar el juego
-                    }, 2500);
-
-                }, 1500);
+                if (isPlayerTurn) {
+                    statusEl.innerHTML = 'IA pensando...';
+                    gameActive = false; // Pausar clicks del usuario
+                    setTimeout(aiMove, 600);
+                } else {
+                    statusEl.innerHTML = 'Tu turno. Juegas con: ' + playerPiece;
+                    gameActive = true; // Reactivar clicks del usuario
+                }
             }
+        }
+
+        function iniciarSecuenciaPerdida(fueEmpate = false) {
+            // 1. Decir si fue empate o si perdió
+            statusEl.innerHTML = fueEmpate ? "¡Empate!" : "¡Oh no! Perdiste...";
+            
+            // 2. Mostrar "te dejare ganar" con animación a los 1.5s
+            setTimeout(() => {
+                statusEl.innerHTML = "te dejare ganar <div class='spinner'></div>";
+            }, 1500);
+
+            // 3. Informar el cambio de piezas a los 3.5s
+            setTimeout(() => {
+                statusEl.innerHTML = "Cambiando piezas. Ahora serás los círculos... <div class='spinner'></div>";
+            }, 3500);
+
+            // 4. Reiniciar el tablero y empezar la nueva ronda a los 5.5s
+            setTimeout(() => {
+                resetBoardAndSwapPieces();
+            }, 5500);
+        }
+
+        function resetBoardAndSwapPieces() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            playerPiece = 'O'; // Ahora ella juega con O
+            aiPiece = 'X';     // IA juega con X
+            
+            updateBoard();
+            statusEl.innerHTML = "Tu turno. Juegas con: " + playerPiece;
+            gameActive = true; // El juego vuelve a activarse
         }
     </script>
 </body>
