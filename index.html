@@ -2,403 +2,452 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Para Ximena</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fuente romántica/juguetona -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
         body {
             font-family: 'Patrick Hand', cursive;
             margin: 0;
+            padding: 0;
             overflow: hidden;
-            background-color: #7ab4e2;
-            color: #1e3a8a;
+            background: linear-gradient(180deg, #60A5FA 0%, #93C5FD 100%);
+            height: 100vh;
+            width: 100vw;
+            touch-action: manipulation; /* Previene zoom accidental en móviles */
         }
-        /* Animación de Nubes */
-        .clouds {
+
+        .clouds-container {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
             z-index: 0;
-            overflow: hidden;
         }
+
         .cloud {
             position: absolute;
-            background: white;
-            border-radius: 50px;
             opacity: 0.8;
             animation: float linear infinite;
+            fill: white;
         }
-        .cloud::before, .cloud::after {
-            content: '';
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-        }
-        .cloud1 { width: 100px; height: 30px; top: 20%; left: -100px; animation-duration: 25s; }
-        .cloud1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
-        .cloud1::after { width: 40px; height: 40px; top: -15px; left: 50px; }
-        
-        .cloud2 { width: 150px; height: 40px; top: 50%; left: -150px; animation-duration: 35s; opacity: 0.6; }
-        .cloud2::before { width: 70px; height: 70px; top: -35px; left: 20px; }
-        .cloud2::after { width: 60px; height: 60px; top: -25px; left: 70px; }
-
-        .cloud3 { width: 120px; height: 35px; top: 75%; left: -120px; animation-duration: 20s; opacity: 0.9; }
-        .cloud3::before { width: 60px; height: 60px; top: -30px; left: 15px; }
-        .cloud3::after { width: 50px; height: 50px; top: -20px; left: 60px; }
 
         @keyframes float {
-            from { transform: translateX(-200px); }
-            to { transform: translateX(110vw); }
+            0% { transform: translateX(-200px); }
+            100% { transform: translateX(100vw); }
         }
 
-        /* Estructura general */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            z-index: 10;
-            position: relative;
-            transition: opacity 0.5s ease-in-out;
-        }
-        .hidden-phase {
-            display: none !important;
-            opacity: 0;
-        }
-        .snoopy-img {
-            position: fixed;
-            bottom: -10px;
-            right: -10px;
-            width: 150px;
-            z-index: 20;
-        }
+        .cloud-1 { top: 10%; animation-duration: 45s; animation-delay: -10s; width: 150px; }
+        .cloud-2 { top: 30%; animation-duration: 60s; animation-delay: -30s; width: 200px; opacity: 0.6; }
+        .cloud-3 { top: 60%; animation-duration: 40s; animation-delay: -5s; width: 180px; }
+        .cloud-4 { top: 15%; animation-duration: 55s; animation-delay: -45s; width: 250px; opacity: 0.7; }
+        .cloud-5 { top: 75%; animation-duration: 70s; animation-delay: -20s; width: 300px; opacity: 0.5; }
 
-        /* Laberinto */
-        #maze-grid {
+        .maze-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 2px;
-            background: #cbd5e1;
-            padding: 2px;
+            background-color: #3b82f6;
+            padding: 4px;
             border-radius: 8px;
+            width: 200px;
+            height: 200px;
             margin: 0 auto;
         }
+        
         .maze-cell {
-            width: 40px;
-            height: 40px;
-            background: white;
+            background-color: white;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
         }
-        .wall { background: #1e3a8a; }
-        .start { background: #eff6ff; }
-        .goal { background: #86efac; }
+        
+        .maze-wall { background-color: #1e3a8a; } /* Azul oscuro para paredes */
+        .maze-goal { background-color: #a7f3d0; } /* Verde claro para meta */
+        
         .player-dot {
-            width: 20px;
-            height: 20px;
-            background: #3b82f6;
+            width: 70%;
+            height: 70%;
+            background-color: #3b82f6; /* Punto azul */
             border-radius: 50%;
-            transition: all 0.1s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* Gato */
-        #tic-tac-toe-board {
+        .d-pad {
+            display: grid;
+            grid-template-areas: 
+                ". up ."
+                "left down right";
+            gap: 8px;
+            width: 150px;
+            margin: 1rem auto 0 auto;
+        }
+
+        .tictactoe-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            background: #93c5fd;
-            padding: 5px;
-            border-radius: 10px;
-            width: 200px;
+            gap: 8px;
+            background-color: #bfdbfe;
+            padding: 8px;
+            border-radius: 16px;
+            width: 250px;
             margin: 0 auto;
         }
-        .tic-cell {
-            background: white;
-            height: 60px;
+
+        .ttt-cell {
+            background-color: white;
+            height: 75px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            cursor: pointer;
-            border-radius: 5px;
+            font-size: 3rem;
             font-weight: bold;
+            color: #1e40af;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
         }
-        .tic-cell.x { color: #1e3a8a; }
-        .tic-cell.o { color: #ef4444; }
 
-        .spinner {
-            border: 3px solid rgba(0,0,0,0.1);
-            border-left-color: #1e3a8a;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-left: 5px;
+        .ttt-cell:active {
+            transform: scale(0.95);
+            background-color: #f1f5f9;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Spinner CSS */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+
+        .phase { display: none; }
+        .phase.active {
+            display: flex;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        #btnNo {
+            transition: all 0.2s ease;
+        }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-center p-4">
+<body class="relative flex items-center justify-center">
 
-    <div class="clouds">
-        <div class="cloud cloud1"></div>
-        <div class="cloud cloud2"></div>
-        <div class="cloud cloud3"></div>
+    <!-- Nubes Animadas -->
+    <div class="clouds-container">
+        <svg class="cloud cloud-1" viewBox="0 0 24 24"><path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1387 20.1843 10.2023 17.8687 10.0271C17.4393 6.61111 14.5362 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2369 4.01174 11.4709 4.0346 11.7011C1.77665 12.3361 0 14.4756 0 17C0 19.7614 2.23858 22 5 22H17.5C18.6046 22 19.5 21.1046 19.5 20C19.5 18.8954 18.6046 18 17.5 18V19Z"/></svg>
+        <svg class="cloud cloud-2" viewBox="0 0 24 24"><path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1387 20.1843 10.2023 17.8687 10.0271C17.4393 6.61111 14.5362 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2369 4.01174 11.4709 4.0346 11.7011C1.77665 12.3361 0 14.4756 0 17C0 19.7614 2.23858 22 5 22H17.5C18.6046 22 19.5 21.1046 19.5 20C19.5 18.8954 18.6046 18 17.5 18V19Z"/></svg>
+        <svg class="cloud cloud-3" viewBox="0 0 24 24"><path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1387 20.1843 10.2023 17.8687 10.0271C17.4393 6.61111 14.5362 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2369 4.01174 11.4709 4.0346 11.7011C1.77665 12.3361 0 14.4756 0 17C0 19.7614 2.23858 22 5 22H17.5C18.6046 22 19.5 21.1046 19.5 20C19.5 18.8954 18.6046 18 17.5 18V19Z"/></svg>
+        <svg class="cloud cloud-4" viewBox="0 0 24 24"><path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1387 20.1843 10.2023 17.8687 10.0271C17.4393 6.61111 14.5362 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2369 4.01174 11.4709 4.0346 11.7011C1.77665 12.3361 0 14.4756 0 17C0 19.7614 2.23858 22 5 22H17.5C18.6046 22 19.5 21.1046 19.5 20C19.5 18.8954 18.6046 18 17.5 18V19Z"/></svg>
     </div>
 
-    <!-- FASE 1: Bienvenida -->
-    <div id="fase1" class="glass-card p-8 rounded-2xl text-center max-w-sm w-full">
-        <h1 class="text-4xl mb-4 tracking-wider">BIENVENIDA</h1>
-        <p class="text-lg mb-6">Por favor, ingresa tu nombre para continuar:</p>
-        <input type="text" id="nameInput" placeholder="Tu nombre" class="w-full p-3 mb-6 border-2 border-blue-200 rounded-lg outline-none focus:border-blue-500 text-center text-xl font-sans">
-        <button onclick="checkName()" class="bg-blue-500 text-white px-8 py-3 rounded-lg text-xl hover:bg-blue-600 transition shadow-md w-full">Empezar</button>
-    </div>
+    <!-- Placeholder de Snoopy -->
+    <img src="snoopy.png" alt="Snoopy Placeholder" class="absolute bottom-4 right-4 w-32 md:w-40 z-10 pointer-events-none drop-shadow-lg">
 
-    <!-- FASE 2: Laberinto -->
-    <div id="fase2" class="glass-card p-6 rounded-2xl text-center max-w-sm w-full hidden-phase">
-        <h2 class="text-3xl mb-2">CALIBRANDO SISTEMA</h2>
-        <p class="text-md mb-4 text-gray-600">Mueve el punto a la meta (verde).</p>
-        <div id="maze-grid" class="mb-4"></div>
-        <div class="grid grid-cols-3 gap-2 w-32 mx-auto">
-            <div></div>
-            <button onclick="movePlayer(0, -1)" class="bg-gray-200 p-2 rounded hover:bg-gray-300">↑</button>
-            <div></div>
-            <button onclick="movePlayer(-1, 0)" class="bg-gray-200 p-2 rounded hover:bg-gray-300">←</button>
-            <button onclick="movePlayer(0, 1)" class="bg-gray-200 p-2 rounded hover:bg-gray-300">↓</button>
-            <button onclick="movePlayer(1, 0)" class="bg-gray-200 p-2 rounded hover:bg-gray-300">→</button>
+    <!-- Contenedor Principal (Tarjeta) -->
+    <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-6 sm:p-8 max-w-sm w-full mx-4 z-20 text-center border border-white relative overflow-hidden h-[450px] flex items-center justify-center">
+        
+        <div id="phase1" class="phase active flex-col w-full">
+            <h1 class="text-4xl text-blue-900 mb-6 font-bold uppercase tracking-wide">Bienvenida</h1>
+            <p class="text-xl text-gray-700 mb-6">Por favor, ingresa tu nombre para continuar:</p>
+            <input type="text" id="nameInput" placeholder="Tu nombre" 
+                   class="w-full text-center text-2xl p-3 border-2 border-blue-200 rounded-xl mb-6 focus:outline-none focus:border-blue-400 bg-blue-50/50">
+            <button id="btnStart" class="bg-blue-500 hover:bg-blue-600 text-white text-2xl py-2 px-8 rounded-xl shadow-md transition-all mx-auto">
+                Empezar
+            </button>
+        </div>
+
+        <div id="phase2" class="phase flex-col w-full">
+            <h2 class="text-2xl text-blue-900 mb-2 font-bold uppercase">Calibrando Sistema</h2>
+            <p class="text-md text-gray-600 mb-4">Mueve el punto a la meta (verde).</p>
+            
+            <div id="mazeContainer" class="maze-grid shadow-inner">
+                <!-- Celdas generadas por JS -->
+            </div>
+
+            <div class="d-pad">
+                <button class="bg-gray-200 rounded-lg p-2 text-xl shadow hover:bg-gray-300 active:bg-gray-400" style="grid-area: up;" onclick="moveMaze(0, -1)">↑</button>
+                <button class="bg-gray-200 rounded-lg p-2 text-xl shadow hover:bg-gray-300 active:bg-gray-400" style="grid-area: left;" onclick="moveMaze(-1, 0)">←</button>
+                <button class="bg-gray-200 rounded-lg p-2 text-xl shadow hover:bg-gray-300 active:bg-gray-400" style="grid-area: right;" onclick="moveMaze(1, 0)">→</button>
+                <button class="bg-gray-200 rounded-lg p-2 text-xl shadow hover:bg-gray-300 active:bg-gray-400" style="grid-area: down;" onclick="moveMaze(0, 1)">↓</button>
+            </div>
+        </div>
+
+        <div id="phase3" class="phase flex-col w-full relative h-full justify-center">
+            <h1 class="text-3xl text-blue-900 mb-4 font-bold">¡Completado!</h1>
+            <p class="text-xl text-gray-700 leading-relaxed mb-8">
+                Pero.. ¿te diste cuenta? Te encanta caer en los experimentos que hago específicamente para ti... anyway quieres seguir jugando?
+            </p>
+            <div class="flex justify-center gap-6 relative" id="buttonsContainer">
+                <button id="btnSi" class="bg-blue-500 text-white text-xl py-2 px-6 rounded-xl shadow hover:bg-blue-600 z-10 w-24">
+                    Sí
+                </button>
+                <!-- Botón No escurridizo -->
+                <button id="btnNo" class="bg-gray-400 text-white text-xl py-2 px-6 rounded-xl shadow absolute w-24" style="left: calc(50% + 12px);">
+                    No
+                </button>
+            </div>
+        </div>
+
+        <div id="phase4" class="phase flex-col w-full">
+            <h1 class="text-2xl text-blue-900 mb-2 font-bold uppercase">Gato vs IA</h1>
+            
+            <div id="tttMessageArea" class="h-16 flex items-center justify-center flex-col">
+                <p id="tttStatus" class="text-lg text-gray-700">Tu turno. Juegas con: <span id="playerPieceDisplay" class="font-bold text-blue-600">X</span></p>
+                <div id="loadingSpinner" class="spinner hidden"></div>
+            </div>
+
+            <div class="tictactoe-grid mt-2" id="tttBoard">
+                <div class="ttt-cell" onclick="makeMove(0)"></div>
+                <div class="ttt-cell" onclick="makeMove(1)"></div>
+                <div class="ttt-cell" onclick="makeMove(2)"></div>
+                <div class="ttt-cell" onclick="makeMove(3)"></div>
+                <div class="ttt-cell" onclick="makeMove(4)"></div>
+                <div class="ttt-cell" onclick="makeMove(5)"></div>
+                <div class="ttt-cell" onclick="makeMove(6)"></div>
+                <div class="ttt-cell" onclick="makeMove(7)"></div>
+                <div class="ttt-cell" onclick="makeMove(8)"></div>
+            </div>
         </div>
     </div>
-
-    <!-- FASE 3: El Experimento -->
-    <div id="fase3" class="glass-card p-8 rounded-2xl text-center max-w-sm w-full hidden-phase">
-        <h2 class="text-3xl mb-4 text-blue-900">¡Completado!</h2>
-        <p class="text-xl mb-8 leading-relaxed">
-            Pero.. ¿te diste cuenta? Te encanta caer en los experimentos que hago específicamente para ti... anyway quieres seguir jugando?
-        </p>
-        <div class="flex justify-center gap-4 relative h-12">
-            <button onclick="startGato()" class="bg-blue-500 text-white px-8 py-2 rounded-lg text-xl hover:bg-blue-600 shadow-md">Sí</button>
-            <button id="btnNo" class="bg-gray-400 text-white px-8 py-2 rounded-lg text-xl shadow-md absolute" style="right: 0;">No</button>
-        </div>
-    </div>
-
-    <!-- FASE 4: Gato -->
-    <div id="fase4" class="glass-card p-6 rounded-2xl text-center max-w-sm w-full hidden-phase">
-        <h2 class="text-3xl mb-2">GATO VS IA</h2>
-        <p id="gato-status" class="text-lg mb-4 min-h-[1.75rem]">Tu turno. Juegas con: X</p>
-        <div id="tic-tac-toe-board">
-            <div class="tic-cell" onclick="makeMove(0)"></div>
-            <div class="tic-cell" onclick="makeMove(1)"></div>
-            <div class="tic-cell" onclick="makeMove(2)"></div>
-            <div class="tic-cell" onclick="makeMove(3)"></div>
-            <div class="tic-cell" onclick="makeMove(4)"></div>
-            <div class="tic-cell" onclick="makeMove(5)"></div>
-            <div class="tic-cell" onclick="makeMove(6)"></div>
-            <div class="tic-cell" onclick="makeMove(7)"></div>
-            <div class="tic-cell" onclick="makeMove(8)"></div>
-        </div>
-    </div>
-
-    <img src="snoopy.png" alt="Snoopy" class="snoopy-img">
 
     <script>
-        // --- NAVEGACIÓN ---
-        function changePhase(hideId, showId) {
-            document.getElementById(hideId).classList.add('hidden-phase');
-            document.getElementById(showId).classList.remove('hidden-phase');
+        // Navegación de Fases
+        function showPhase(phaseNum) {
+            document.querySelectorAll('.phase').forEach(el => el.classList.remove('active'));
+            document.getElementById('phase' + phaseNum).classList.add('active');
         }
 
-        // --- FASE 1 ---
-        function checkName() {
+        // FASE 1
+        document.getElementById('btnStart').addEventListener('click', () => {
             const name = document.getElementById('nameInput').value.trim();
-            if (name.length > 0) {
-                changePhase('fase1', 'fase2');
+            if(name) {
+                showPhase(2);
                 initMaze();
+            } else {
+                document.getElementById('nameInput').classList.add('border-red-400', 'bg-red-50');
+                setTimeout(() => document.getElementById('nameInput').classList.remove('border-red-400', 'bg-red-50'), 500);
             }
-        }
+        });
 
-        // --- FASE 2: LABERINTO ---
-        const mazeLayout = [
-            [0, 1, 0, 0, 0],
-            [0, 1, 0, 1, 0],
-            [0, 0, 0, 1, 0],
-            [1, 1, 0, 1, 0],
-            [0, 0, 0, 1, 2]
+        // FASE 2: Laberinto
+        const mazeGrid = [
+            [0, 0, 1, 1, 1],
+            [1, 0, 0, 0, 1],
+            [1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 2] // 0=camino, 1=pared, 2=meta
         ];
-        let playerPos = { x: 0, y: 0 };
+        let dotPos = {x: 0, y: 0};
 
         function initMaze() {
-            const grid = document.getElementById('maze-grid');
-            grid.innerHTML = '';
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
+            const container = document.getElementById('mazeContainer');
+            container.innerHTML = '';
+            for(let y=0; y<5; y++) {
+                for(let x=0; x<5; x++) {
                     const cell = document.createElement('div');
-                    cell.className = 'maze-cell ' + (mazeLayout[y][x] === 1 ? 'wall' : (mazeLayout[y][x] === 2 ? 'goal' : 'start'));
+                    cell.className = 'maze-cell';
+                    if(mazeGrid[y][x] === 1) cell.classList.add('maze-wall');
+                    if(mazeGrid[y][x] === 2) cell.classList.add('maze-goal');
                     cell.id = `cell-${x}-${y}`;
-                    grid.appendChild(cell);
+                    container.appendChild(cell);
                 }
             }
-            updatePlayerVisual();
+            renderDot();
         }
 
-        function movePlayer(dx, dy) {
-            const newX = playerPos.x + dx;
-            const newY = playerPos.y + dy;
-            
-            if (newX >= 0 && newX < 5 && newY >= 0 && newY < 5 && mazeLayout[newY][newX] !== 1) {
-                playerPos = { x: newX, y: newY };
-                updatePlayerVisual();
-                if (mazeLayout[newY][newX] === 2) {
-                    setTimeout(() => changePhase('fase2', 'fase3'), 300);
-                }
-            }
-        }
-
-        function updatePlayerVisual() {
-            document.querySelectorAll('.player-dot').forEach(dot => dot.remove());
-            const currentCell = document.getElementById(`cell-${playerPos.x}-${playerPos.y}`);
-            if(currentCell) {
+        function renderDot() {
+            document.querySelectorAll('.player-dot').forEach(el => el.remove());
+            const cell = document.getElementById(`cell-${dotPos.x}-${dotPos.y}`);
+            if(cell) {
                 const dot = document.createElement('div');
                 dot.className = 'player-dot';
-                currentCell.appendChild(dot);
+                cell.appendChild(dot);
             }
         }
 
-        // --- FASE 3: BOTÓN EVASIVO ---
+        function moveMaze(dx, dy) {
+            let nx = dotPos.x + dx;
+            let ny = dotPos.y + dy;
+            
+            if(nx >= 0 && nx < 5 && ny >= 0 && ny < 5 && mazeGrid[ny][nx] !== 1) {
+                dotPos.x = nx;
+                dotPos.y = ny;
+                renderDot();
+                
+                if(mazeGrid[ny][nx] === 2) {
+                    setTimeout(() => showPhase(3), 300);
+                }
+            }
+        }
+
+        // FASE 3
+        document.getElementById('btnSi').addEventListener('click', () => {
+            showPhase(4);
+            resetTicTacToe();
+        });
+
         const btnNo = document.getElementById('btnNo');
-        btnNo.addEventListener('mouseover', evadeClick);
-        btnNo.addEventListener('touchstart', evadeClick);
+        const evadeMouse = () => {
+            const container = document.getElementById('phase3');
+            // Dimensiones seguras para evitar que el botón salga de la tarjeta
+            const maxX = container.clientWidth - btnNo.clientWidth - 20;
+            const maxY = container.clientHeight - btnNo.clientHeight - 80; // Respetar texto superior
+            
+            const newX = Math.max(0, Math.floor(Math.random() * maxX));
+            const newY = Math.max(100, Math.floor(Math.random() * maxY)); // Evitar que suba mucho
+            
+            btnNo.style.position = 'absolute';
+            btnNo.style.left = `${newX}px`;
+            btnNo.style.top = `${newY}px`;
+        };
+        btnNo.addEventListener('mouseover', evadeMouse);
+        btnNo.addEventListener('touchstart', (e) => { e.preventDefault(); evadeMouse(); });
 
-        function evadeClick(e) {
-            e.preventDefault();
-            const container = btnNo.parentElement;
-            const maxX = container.offsetWidth - btnNo.offsetWidth;
-            const randomX = Math.floor(Math.random() * maxX);
-            btnNo.style.left = `${randomX}px`;
-            btnNo.style.right = 'auto';
-        }
-
-        function startGato() {
-            changePhase('fase3', 'fase4');
-        }
-
-        // --- FASE 4: GATO ---
+        // FASE 4: Gato
         let board = ['', '', '', '', '', '', '', '', ''];
         let playerPiece = 'X';
         let aiPiece = 'O';
-        let gameActive = true;
-        const statusEl = document.getElementById('gato-status');
+        let gameActive = false;
         
         const winConditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],
-            [0, 4, 8], [2, 4, 6]
+            [0,1,2], [3,4,5], [6,7,8], // Filas
+            [0,3,6], [1,4,7], [2,5,8], // Columnas
+            [0,4,8], [2,4,6]           // Diagonales
         ];
 
+        function resetTicTacToe() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            document.querySelectorAll('.ttt-cell').forEach(cell => {
+                cell.innerText = '';
+                cell.classList.remove('text-red-500', 'text-blue-600');
+            });
+            document.getElementById('playerPieceDisplay').innerText = playerPiece;
+            document.getElementById('tttStatus').innerText = `Tu turno. Juegas con: ${playerPiece}`;
+            document.getElementById('tttStatus').style.display = 'block';
+            document.getElementById('loadingSpinner').style.display = 'none';
+            gameActive = true;
+        }
+
+        function checkWin(currentBoard, player) {
+            return winConditions.some(combination => {
+                return combination.every(index => currentBoard[index] === player);
+            });
+        }
+
+        function isDraw() {
+            return board.every(cell => cell !== '');
+        }
+
         function makeMove(index) {
-            if (board[index] === '' && gameActive) {
+            if(board[index] === '' && gameActive) {
                 board[index] = playerPiece;
                 updateBoard();
-                checkGameState(playerPiece, true);
+                
+                if(checkWin(board, playerPiece)) {
+                    endGame('win');
+                } else if(isDraw()) {
+                    endGame('draw');
+                } else {
+                    gameActive = false;
+                    document.getElementById('tttStatus').innerText = 'IA pensando...';
+                    setTimeout(aiMove, 600);
+                }
             }
         }
 
         function aiMove() {
-            if (!gameActive) return;
+            // Lógica simple de IA: Intentar bloquear o tirar aleatorio
+            let moveIndex = -1;
             
-            let bestMove = findWinningMove(aiPiece); // Intentar ganar
-            
-            if (bestMove === -1) {
-                bestMove = findWinningMove(playerPiece); // Intentar bloquear
-            }
-
-            if (bestMove === -1) {
-                let available = board.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
-                bestMove = available[Math.floor(Math.random() * available.length)];
-            }
-
-            if (bestMove !== -1) {
-                board[bestMove] = aiPiece;
-                updateBoard();
-                checkGameState(aiPiece, false);
-            }
-        }
-
-        function findWinningMove(piece) {
-            for (let i = 0; i < winConditions.length; i++) {
+            // 1. Intentar bloquear al jugador
+            for(let i=0; i<winConditions.length; i++) {
                 const [a, b, c] = winConditions[i];
-                if (board[a] === piece && board[b] === piece && board[c] === '') return c;
-                if (board[a] === piece && board[c] === piece && board[b] === '') return b;
-                if (board[b] === piece && board[c] === piece && board[a] === '') return a;
+                if(board[a]===playerPiece && board[b]===playerPiece && board[c]==='') moveIndex = c;
+                if(board[a]===playerPiece && board[c]===playerPiece && board[b]==='') moveIndex = b;
+                if(board[b]===playerPiece && board[c]===playerPiece && board[a]==='') moveIndex = a;
             }
-            return -1;
+            
+            // 2. Si no hay bloqueo, elegir espacio vacío aleatorio
+            if(moveIndex === -1) {
+                const emptySpots = board.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
+                if(emptySpots.length > 0) {
+                    moveIndex = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+                }
+            }
+
+            if(moveIndex !== -1) {
+                board[moveIndex] = aiPiece;
+                updateBoard();
+                
+                if(checkWin(board, aiPiece)) {
+                    endGame('lose');
+                } else if(isDraw()) {
+                    endGame('draw');
+                } else {
+                    gameActive = true;
+                    document.getElementById('tttStatus').innerText = `Tu turno. Juegas con: ${playerPiece}`;
+                }
+            }
         }
 
         function updateBoard() {
-            const cells = document.querySelectorAll('.tic-cell');
-            cells.forEach((cell, i) => {
-                cell.innerText = board[i];
-                cell.className = 'tic-cell ' + (board[i] === 'X' ? 'x' : (board[i] === 'O' ? 'o' : ''));
+            const cells = document.querySelectorAll('.ttt-cell');
+            board.forEach((val, idx) => {
+                cells[idx].innerText = val;
+                if(val === 'X') cells[idx].className = 'ttt-cell text-blue-600';
+                if(val === 'O') cells[idx].className = 'ttt-cell text-red-500';
             });
         }
 
-        // NUEVA LÓGICA DE CONTROL DE ESTADO
-        function checkGameState(lastPiecePlayed, isPlayerTurn) {
-            const won = winConditions.some(cond => cond.every(idx => board[idx] === lastPiecePlayed));
-            const isDraw = !board.includes('');
+        function endGame(result) {
+            gameActive = false;
+            const statusText = document.getElementById('tttStatus');
+            const spinner = document.getElementById('loadingSpinner');
 
-            if (won) {
-                gameActive = false;
-                if (isPlayerTurn) {
-                    statusEl.innerHTML = "¡Ganaste! no cabe duda que siempre seras la mejor en todo ❤️";
-                } else {
-                    iniciarSecuenciaPerdida();
-                }
-            } else if (isDraw) {
-                gameActive = false;
-                iniciarSecuenciaPerdida(true); // Empate también cuenta como "pérdida" en este contexto
+            if(result === 'win') {
+                statusText.innerHTML = '<span class="text-xl text-red-500 font-bold leading-tight">no cabe duda que siempre seras la mejor en todo ❤️</span>';
             } else {
-                if (isPlayerTurn) {
-                    statusEl.innerHTML = 'IA pensando...';
-                    gameActive = false; // Pausar clicks del usuario
-                    setTimeout(aiMove, 600);
-                } else {
-                    statusEl.innerHTML = 'Tu turno. Juegas con: ' + playerPiece;
-                    gameActive = true; // Reactivar clicks del usuario
-                }
+                statusText.innerText = result === 'draw' ? '¡Empate!' : '¡Oh no! Perdiste...';
+                
+                setTimeout(() => {
+                    statusText.innerText = 'te dejare ganar';
+                    spinner.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        // Cambiar piezas para la siguiente ronda
+                        playerPiece = 'O';
+                        aiPiece = 'X';
+                        resetTicTacToe();
+                    }, 2500);
+
+                }, 1500);
             }
-        }
-
-        function iniciarSecuenciaPerdida(fueEmpate = false) {
-            // 1. Decir si fue empate o si perdió
-            statusEl.innerHTML = fueEmpate ? "¡Empate!" : "¡Oh no! Perdiste...";
-            
-            // 2. Mostrar "te dejare ganar" con animación a los 1.5s
-            setTimeout(() => {
-                statusEl.innerHTML = "te dejare ganar <div class='spinner'></div>";
-            }, 1500);
-
-            // 3. Informar el cambio de piezas a los 3.5s
-            setTimeout(() => {
-                statusEl.innerHTML = "Cambiando piezas. Ahora serás los círculos... <div class='spinner'></div>";
-            }, 3500);
-
-            // 4. Reiniciar el tablero y empezar la nueva ronda a los 5.5s
-            setTimeout(() => {
-                resetBoardAndSwapPieces();
-            }, 5500);
-        }
-
-        function resetBoardAndSwapPieces() {
-            board = ['', '', '', '', '', '', '', '', ''];
-            playerPiece = 'O'; // Ahora ella juega con O
-            aiPiece = 'X';     // IA juega con X
-            
-            updateBoard();
-            statusEl.innerHTML = "Tu turno. Juegas con: " + playerPiece;
-            gameActive = true; // El juego vuelve a activarse
         }
     </script>
 </body>
