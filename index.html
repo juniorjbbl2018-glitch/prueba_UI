@@ -76,30 +76,30 @@
         #maze-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 0px; /* Quitamos los espacios para que se vea unido */
+            gap: 0px; 
             background: #1e3a8a;
-            border: 3px solid #3b82f6; /* Borde exterior azul claro */
+            border: 3px solid #3b82f6; 
             border-radius: 8px;
             margin: 0 auto;
             width: fit-content;
-            overflow: hidden; /* Mantiene las esquinas exteriores redondeadas */
+            overflow: hidden; 
         }
         .maze-cell {
             width: 40px;
             height: 40px;
-            background: white; /* Camino blanco */
+            background: white; 
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 0px; /* Esquinas interiores cuadradas */
+            border-radius: 0px; 
         }
-        .wall { background: #1e3a8a; } /* Pared azul oscuro */
+        .wall { background: #1e3a8a; } 
         .start { background: white; }
-        .goal { background: #86efac; } /* Meta verde */
+        .goal { background: #86efac; } 
         .player-dot {
             width: 20px;
             height: 20px;
-            background: #3b82f6; /* Punto azul claro */
+            background: #3b82f6; 
             border-radius: 50%;
             transition: all 0.1s ease;
         }
@@ -308,7 +308,7 @@
         }
 
         function aiMove() {
-            if (!gameActive) return;
+            // Ya no verificamos if (!gameActive) para permitir a la IA tirar libremente
             
             let bestMove = findWinningMove(aiPiece); // Intentar ganar
             
@@ -389,7 +389,7 @@
                 updateBoard();
                 
                 statusEl.innerHTML = "<span class='text-center'>Te dejare ganar esta vez...<br>solamente por que seguiste jugando 🫶🏻</span>";
-                gameActive = false; // Se bloquea el juego para que termine ahí
+                gameActive = false; // Se bloquea el juego de forma definitiva
             }, 3500);
         }
     </script>
